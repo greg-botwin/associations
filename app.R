@@ -134,8 +134,8 @@ server <- function(input, output, session) {
                 chromosome = CHR,
                 a1 = A1,
                 n_miss = NMISS, 
-                odds_ration = OR,
-                bass_pair = BP,
+                odds_ratio = OR,
+                basse_pair = BP,
                 location = location)
   })
   
