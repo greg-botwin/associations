@@ -13,19 +13,13 @@ colnames(associations) <- make.names(colnames(associations))
 associations <- associations %>%
   separate(GENE.LOCATION.CodingStatus, into = c("gene", "location", "coding_status"),
            sep = "=") %>%
-  rename(sub_type = CD_pheno)
+  rename(population = CD_pheno)
 
 # Define UI for application 
 ui <- fluidPage(
   titlePanel("Cedars IBD Known Associations"),
   sidebarLayout(
     sidebarPanel(
-      radioButtons(inputId = "disease_class",
-                   label = "Select Disease Sub-Type",
-                   choices = list("Crohn's Disease" = "CD_pheno",
-                                  "Ulcerative_colitits" = "UC_pheno",
-                                  "CD and UC" = "both"),
-                   selected = "CD_pheno"),
       sliderInput(inputId = "maf",
                   label = "SNP with Minor Allele Frequency >=",
                   min = 0,
@@ -61,14 +55,6 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   associations_filtered <- reactive({
     
-    if (input$disease_class != "both") {
-      associations %>%
-        filter(sub_type == input$disease_class) %>%
-        filter(P <= 10^-input$p_value) %>%
-        filter(gene %in% input$gene_list) %>%
-        filter(location %in% input$snp_location) %>%
-        filter(MAF >= input$maf)
-  }
       associations %>%
         filter(P <= 10^-input$p_value) %>%
         filter(gene %in% input$gene_list) %>%
@@ -79,15 +65,6 @@ server <- function(input, output, session) {
   
   gene_options <- reactive({
     
-    if (input$disease_class != "both") {
-      associations %>%
-        filter(sub_type == input$disease_class) %>%
-        filter(P <= 10^-input$p_value) %>%
-        filter(location %in% input$snp_location) %>%
-        filter(MAF >= input$maf) %>%
-        select(gene) %>%
-        distinct()
-    }
       associations %>%
         filter(P <= 10^-input$p_value) %>%
         filter(location %in% input$snp_location) %>%
@@ -101,7 +78,7 @@ server <- function(input, output, session) {
   output$table_genes<- DT::renderDataTable({
     
     associations_filtered() %>%
-      group_by(sub_type, gene) %>%
+      group_by(population, gene) %>%
       summarise(n_phenos = length(unique(PHENOTYPE)),
                 phenos = paste(unique(PHENOTYPE), collapse = ", "),
                 min_p = min(P),
@@ -115,7 +92,7 @@ server <- function(input, output, session) {
   output$table_gene_snps<- DT::renderDataTable({
 
     associations_filtered() %>%
-      group_by(sub_type, gene, PHENOTYPE) %>%
+      group_by(population, gene, PHENOTYPE) %>%
       summarise(n_sig_snps = length(unique(RSID)),
                 SNPs = paste(unique(RSID), collapse = ", "),
                 min_p = min(P),
@@ -129,7 +106,7 @@ server <- function(input, output, session) {
   # talk with talin about rs2066844, non unique SNP
   output$table_snps <- DT::renderDataTable({
     associations_filtered() %>%
-      group_by(sub_type, gene, PHENOTYPE, RSID) %>%
+      group_by(population, gene, PHENOTYPE, RSID) %>%
       summarise(p_value = P,
                 chromosome = CHR,
                 a1 = A1,
