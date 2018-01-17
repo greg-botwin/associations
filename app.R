@@ -47,9 +47,9 @@ ui <- fluidPage(
     # Show a table
     mainPanel(
       tabsetPanel(
-        tabPanel("Gene Based", DT::dataTableOutput("table_genes")),
-        tabPanel("SNP-Gene Based", DT::dataTableOutput("table_gene_snps")),
-        tabPanel("SNP Based", DT::dataTableOutput("table_snps"))
+        tabPanel("By Gene Search", DT::dataTableOutput("table_genes")),
+        tabPanel("By Gene-Pheno Search", DT::dataTableOutput("table_gene_snps")),
+        tabPanel("By Gene-Pheno-SNP Search", DT::dataTableOutput("table_snps"))
       )
     )
   )
