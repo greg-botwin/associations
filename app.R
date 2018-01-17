@@ -1,4 +1,5 @@
 library(shiny)
+library(DT)
 library(readxl)
 library(tidyverse)
 
@@ -46,9 +47,9 @@ ui <- fluidPage(
     # Show a table
     mainPanel(
       tabsetPanel(
-        tabPanel("Gene Based", dataTableOutput("table_genes")),
-        tabPanel("SNP-Gene Based", dataTableOutput("table_gene_snps")),
-        tabPanel("SNP Based", dataTableOutput("table_snps"))
+        tabPanel("Gene Based", DT::dataTableOutput("table_genes")),
+        tabPanel("SNP-Gene Based", DT::dataTableOutput("table_gene_snps")),
+        tabPanel("SNP Based", DT::dataTableOutput("table_snps"))
       )
     )
   )
@@ -97,7 +98,7 @@ server <- function(input, output, session) {
   })
   
   # table_genes ----------------------------------------------------------------
-  output$table_genes<- renderDataTable({
+  output$table_genes<- DT::renderDataTable({
     
     associations_filtered() %>%
       group_by(sub_type, gene) %>%
@@ -111,7 +112,7 @@ server <- function(input, output, session) {
   })
   
   # table_gene_snps ------------------------------------------------------------
-  output$table_gene_snps<- renderDataTable({
+  output$table_gene_snps<- DT::renderDataTable({
 
     associations_filtered() %>%
       group_by(sub_type, gene, PHENOTYPE) %>%
@@ -126,7 +127,7 @@ server <- function(input, output, session) {
   
   # table_snps ----------------------------------------------------------------
   # talk with talin about rs2066844, non unique SNP
-  output$table_snps <- renderDataTable({
+  output$table_snps <- DT::renderDataTable({
     associations_filtered() %>%
       group_by(sub_type, gene, PHENOTYPE, RSID) %>%
       summarise(p_value = P,
