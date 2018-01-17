@@ -3,6 +3,7 @@ library(readxl)
 library(tidyverse)
 
 # read in sheet 1 data and make better names
+
 associations <- read_excel("data/IBD1_IBD2_IBD9_IBD10_top ten each category.xlsx", 
                            sheet = 1)
 colnames(associations) <- make.names(colnames(associations))
@@ -109,13 +110,13 @@ server <- function(input, output, session) {
     
   })
   
-  # table_snps ----------------------------------------------------------------
+  # table_gene_snps ------------------------------------------------------------
   output$table_gene_snps<- renderDataTable({
 
     associations_filtered() %>%
       group_by(sub_type, gene, PHENOTYPE) %>%
-      summarise(n_sig_snps = length(unique(SNP)),
-                SNPs = paste(unique(SNP), collapse = ", "),
+      summarise(n_sig_snps = length(unique(RSID)),
+                SNPs = paste(unique(RSID), collapse = ", "),
                 min_p = min(P),
                 max_OR = max(OR),
                 min_OR = min(OR)) %>%
@@ -123,14 +124,18 @@ server <- function(input, output, session) {
     
   })
   
+  # table_snps ----------------------------------------------------------------
+  # talk with talin about rs2066844, non unique SNP
   output$table_snps <- renderDataTable({
     associations_filtered() %>%
-      group_by(sub_type, gene, PHENOTYPE, SNP) %>%
+      group_by(sub_type, gene, PHENOTYPE, RSID) %>%
       summarise(p_value = P,
                 chromosome = CHR,
                 a1 = A1,
                 n_miss = NMISS, 
-                odds_ration = OR)
+                odds_ration = OR,
+                bass_pair = BP,
+                location = location)
   })
   
   # ui_genes-------------------------------------------------------------------
