@@ -101,7 +101,8 @@ ui <- fluidPage(
         tabPanel("By Gene-Pheno Search", DT::dataTableOutput("table_gene_pheno"),
                  downloadButton("download_table_gene_pheno", "Download")),
         tabPanel("By Gene-Pheno-SNP Search", DT::dataTableOutput("table_gene_pheno_snp"),
-                 downloadButton("download_table_gene_pheno_snp", "Download")))
+                 downloadButton("download_table_gene_pheno_snp", "Download")),
+        tabPanel("Information", includeMarkdown("README.md")))
       )
     )
   )
@@ -180,7 +181,6 @@ server <- function(input, output, session) {
     options = list(pageLength = 25, lengthMenu = c(25, 50, 100)))
   
   # ui_genes-------------------------------------------------------------------
-  # test gene list IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,IL10
   updateSelectizeInput(session, 'genelist', choices = unique_genes$gene, server = TRUE)
   updateSelectizeInput(session, 'snplist', choices = unique_rsids$RSID, server = TRUE)
   
