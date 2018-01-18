@@ -102,7 +102,7 @@ ui <- fluidPage(
                  downloadButton("download_table_gene_pheno", "Download")),
         tabPanel("By Gene-Pheno-SNP Search", DT::dataTableOutput("table_gene_pheno_snp"),
                  downloadButton("download_table_gene_pheno_snp", "Download")),
-        tabPanel("Information", includeMarkdown("README.md")))
+        tabPanel("Information", includeMarkdown("README.Rmd")))
       )
     )
   )
