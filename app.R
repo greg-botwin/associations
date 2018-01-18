@@ -143,45 +143,41 @@ server <- function(input, output, session) {
     
   
   # table_genes ----------------------------------------------------------------
-  output$table_gene<- DT::renderDataTable({
-    
-    associations_filtered() %>%
+  output$table_gene<- DT::renderDataTable(associations_filtered() %>%
       group_by(population, gene) %>%
       summarise(n_phenos = length(unique(PHENOTYPE)),
                 phenos = paste(unique(PHENOTYPE), collapse = ", "),
                 min_p = min(P),
                 max_OR = max(OR),
                 min_OR = min(OR)) %>%
-      arrange(desc(n_phenos))
-    
-  })
+      arrange(desc(n_phenos)), filter = "bottom", options = 
+        list(pageLength = 25, lengthMenu = c(25, 50, 100)))
   
   # table_gene_pheno------------------------------------------------------------
-  output$table_gene_pheno<- DT::renderDataTable({
-    associations_filtered() %>%
+  output$table_gene_pheno<- DT::renderDataTable(associations_filtered() %>%
       group_by(population, gene, PHENOTYPE) %>%
       summarise(n_sig_snps = length(unique(RSID)),
                 SNPs = paste(unique(RSID), collapse = ", "),
                 min_p = min(P),
                 max_OR = max(OR),
                 min_OR = min(OR)) %>%
-      arrange(desc(n_sig_snps))
-    
-  })
+      arrange(desc(n_sig_snps)), filter = "bottom", options = 
+        list(pageLength = 25, lengthMenu = c(25, 50, 100)))
   
   # table_gene_pheno_snp---------------------------------------------------------
   # talk with talin about rs2066844, non unique SNP
-  output$table_gene_pheno_snp <- DT::renderDataTable({
+  output$table_gene_pheno_snp <- DT::renderDataTable(
     associations_filtered() %>%
       group_by(population, gene, PHENOTYPE, RSID, SNP) %>%
       summarise(p_value = P,
                 chromosome = CHR,
                 a1 = A1,
-                n_miss = NMISS, 
+                n_miss = NMISS,
                 odds_ratio = OR,
-                basse_pair = BP,
-                snp_location = snp_location)
-  })
+                base_pair = BP,
+                snp_location = snp_location),
+    filter = "bottom",
+    options = list(pageLength = 25, lengthMenu = c(25, 50, 100)))
   
   # ui_genes-------------------------------------------------------------------
   # test gene list IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,IL10
