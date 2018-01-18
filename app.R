@@ -11,9 +11,27 @@ colnames(associations) <- make.names(colnames(associations))
 
 # split GENE.LOCATION.CodingStatus
 associations <- associations %>%
-  separate(GENE.LOCATION.CodingStatus, into = c("gene", "location", "coding_status"),
+  separate(GENE.LOCATION.CodingStatus, into = c("gene", "snp_location", "coding_status"),
            sep = "=") %>%
-  rename(population = CD_pheno)
+  rename(population = CD_pheno) %>%
+  rename()
+
+# create unique chromosomes
+unique_chromsomes <- associations %>%
+  select(CHR) %>%
+  distinct() %>%
+  arrange(CHR)
+
+# create unique genes
+unique_genes <- associations %>%
+  select(gene) %>%
+  distinct(gene) 
+
+# create unique rsids
+unique_rsids <- associations %>%
+  select(RSID) %>%
+  distinct()
+
 
 # Define UI for application 
 ui <- fluidPage(
@@ -28,15 +46,51 @@ ui <- fluidPage(
                   step = 0.01),
       checkboxGroupInput(inputId = "snp_location",
                          label = "Acceptable SNP Location",
-                         choices = c(unique(associations$location)),
-                         selected = c(unique(associations$location))),
+                         choices = c(unique(associations$snp_location)),
+                         selected = c(unique(associations$snp_location))),
       sliderInput(inputId = "p_value",
                   label = "Associations with P Value <= 10^-",
                   min = 1,
                   max = 15,
                   value = 1,
                   step = 1),
-      uiOutput("genes")
+      radioButtons(inputId = "searchby",
+                   label = "Search By",
+                   choices = c("Gene" ="gene", "Location" = "location",
+                                                         "SNP" = "snp"),
+                   selected = "gene"),
+      conditionalPanel(
+        condition = "input.searchby == 'gene'",
+        selectizeInput("genelist", "Enter Genes of Interest", choices = NULL, multiple = TRUE, 
+                       options = list(placeholder = 'enter gene names',
+                                      splitOn = I("(function() { return /[,;]/; })()"),
+                                      create = I("function(input, callback) {
+                                                              return { 
+                                                              value: input,
+                                                              text: input
+                                                              };
+                                                              }")))
+        ),
+      conditionalPanel(
+        condition = "input.searchby == 'location'",
+        selectInput(inputId = "chromosome_choice",
+                    label = "Chromosome",
+                    choices = unique_chromsomes$CHR),
+        numericInput("min_bp", "From BP", 0),
+        numericInput("max_bp", "To BP", 0)
+        ),
+      conditionalPanel(
+        condition = "input.searchby == 'snp'",
+        selectizeInput("snplist", "Enter SNPs of Interest", choices = NULL, multiple = TRUE, 
+                       options = list(placeholder = 'enter snp names',
+                                      splitOn = I("(function() { return /[,;]/; })()"),
+                                      create = I("function(input, callback) {
+                                                              return { 
+                                                              value: input,
+                                                              text: input
+                                                              };
+                                                              }")))
+      )
     ),
     # Show a table
     mainPanel(
@@ -53,26 +107,36 @@ ui <- fluidPage(
 
 # Define server logic 
 server <- function(input, output, session) {
+  
+  search_choice <- reactive(input$searchby)
+  
   associations_filtered <- reactive({
-    
+    if(search_choice() == "gene") {
       associations %>%
         filter(P <= 10^-input$p_value) %>%
-        filter(gene %in% input$gene_list) %>%
-        filter(location %in% input$snp_location) %>%
-        filter(MAF >= input$maf)
-  
-  })
-  
-  gene_options <- reactive({
-    
-      associations %>%
-        filter(P <= 10^-input$p_value) %>%
-        filter(location %in% input$snp_location) %>%
+        filter(snp_location %in% input$snp_location) %>%
         filter(MAF >= input$maf) %>%
-        select(gene) %>%
-        distinct()
+        filter(gene %in% input$genelist)
+        }
+        
+    else if(search_choice() == "location") {
+      associations %>%
+        filter(P <= 10^-input$p_value) %>%
+        filter(snp_location %in% input$snp_location) %>%
+        filter(MAF >= input$maf) %>%
+        filter(CHR == input$chromosome_choice) %>%
+        filter(between(BP, input$min_bp, input$max_bp))
+        }
+    else if(search_choice() == "snp"){
+      associations %>%
+        filter(P <= 10^-input$p_value) %>%
+        filter(snp_location %in% input$snp_location) %>%
+        filter(MAF >= input$maf) %>%
+        filter(RSID %in% input$snplist)
+    }
+  }
+  )
     
-  })
   
   # table_genes ----------------------------------------------------------------
   output$table_genes<- DT::renderDataTable({
@@ -106,36 +170,20 @@ server <- function(input, output, session) {
   # talk with talin about rs2066844, non unique SNP
   output$table_snps <- DT::renderDataTable({
     associations_filtered() %>%
-      group_by(population, gene, PHENOTYPE, RSID) %>%
+      group_by(population, gene, PHENOTYPE, RSID, SNP) %>%
       summarise(p_value = P,
                 chromosome = CHR,
                 a1 = A1,
                 n_miss = NMISS, 
                 odds_ratio = OR,
                 basse_pair = BP,
-                location = location)
+                snp_location = snp_location)
   })
   
   # ui_genes-------------------------------------------------------------------
   # test gene list IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,IL10
-  
-  output$genes <- renderUI({
-    
-    selectizeInput("gene_list", "Select Genes of Interest", choices = gene_options(), multiple = TRUE,
-                   selected = NULL, options = list(placeholder = 'select gene names',
-                                                   splitOn = I("(function() { return /[,;]/; })()"),
-                                                   create = I("function(input, callback) {
-                                                              return { 
-                                                              value: input,
-                                                              text: input
-                                                              };
-                                                              }")
-                   )
-    )
-  }
-  )
-  
-  updateSelectizeInput(session, 'gene_list', choices = NULL, server = TRUE)
+  updateSelectizeInput(session, 'genelist', choices = unique_genes$gene, server = TRUE)
+  updateSelectizeInput(session, 'snplist', choices = unique_rsids$RSID, server = TRUE)
   
 }
 
