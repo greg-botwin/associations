@@ -8,12 +8,11 @@ Users can search associations by **Gene** (e.g. NOD2), **Position** (e.g. Chr. 1
 Users can search by multiple Genes or SNPs at a time by selecting multiple Genes or SNPs respectively. If a user has a large list of Genes or SNPs they can copy and paste them into the search box but the Genes/SNPs must be in comma separated format (e.g. IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,IL10).
 
 ### Filtering
-<<<<<<< HEAD
 Users can filter their query to only include SNP associations that reach user defined thresholds. Users can filter by:
 
 =======
 Users can filter their query to only include SNP associations that reach user defined thresholds. Users can filter by: 
->>>>>>> d8edc1abf97f0f8b82293d048d24a0f73b49e06a
+
 1. P Value
 2. Minor Allele Frequency
 3. SNP Location (e.g. intron, coding, complex...)
@@ -27,12 +26,10 @@ Once a table of results is returned, a user can sub-filter the table by the outp
 PUT INFO HERE ON THE NUMBER AND TYPE OF PHENOTYPES TESTED WITH THE SCINETICS N of PATIENTS and  
 
 ### Guidance for Analysts Submitting Association Data
-<<<<<<< HEAD
 The backbone of the application is genetic association tests performed by scientists at the Cedars-Sinai Inflammatory Bowel and Immunobiology Research Institute. To have your association stored in this application the following information is needed in a CSV file per association performed.
 
-=======
 The backbone of the application is genetic association tests performed by scientists at the Cedars-Sinai Inflammatory Bowel and Immunobiology Research Institute. To have your association stored in this application the following information is needed in a CSV file per association test. 
->>>>>>> d8edc1abf97f0f8b82293d048d24a0f73b49e06a
+
 1. Illumina Chip ID
 2. RS ID
 3. P Value
@@ -40,29 +37,20 @@ The backbone of the application is genetic association tests performed by scient
 5. Confidence Intervals (if performed)
 
 In addition to the above the analyst will need to submit information on:
-<<<<<<< HEAD
 
-=======
->>>>>>> d8edc1abf97f0f8b82293d048d24a0f73b49e06a
 1. The name of the analyst who performed the association
 2. The year the analysis was run
 3. The sample of patients the association was performed on (e.g. Disease Sub-Type (CD or UC), Race, Ethnicity, Jewish, other unique criteria of your analysis)
 4. The number of patients in the association (total number in association, both cases and controls)
-<<<<<<< HEAD
 5. The phenotype tested
-=======
-5. The phenotype tested.
->>>>>>> d8edc1abf97f0f8b82293d048d24a0f73b49e06a
+
 
 ### Annotations
 Specific information provided by Talin will go here. Plan is to use hg19 genome locations and UCSC gene information.
 Hardy-Weinberg, minor allele frequency, and missingness will be performed globally on all runs. Additional details to follow. 
-<<<<<<< HEAD
 
 ## Created By:
 The Cedars-Sinai F. Widjaja Foundation Inflammatory Bowel and Immunobiology Research Institute Translational Genomics Group.
-=======
->>>>>>> d8edc1abf97f0f8b82293d048d24a0f73b49e06a
 
 
 
