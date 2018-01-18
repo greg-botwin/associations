@@ -33,6 +33,10 @@ Once a table of results is returned, a user can sub-filter the table by the outp
 
 ## Data 
 
+```{r echo = FALSE}
+print("hello github")
+```
+
 ### Guidance for Analysts Submitting Association Data
 The backbone of the application is genetic association tests performed by scientists at the Cedars-Sinai Inflammatory Bowel and Immunobiology Research Institute. To have your association stored in this application the following information is needed in a CSV file per association performed.
 
@@ -43,14 +47,14 @@ The backbone of the application is genetic association tests performed by scient
 3. P Value
 4. Odds Ratio or B Value 
 5. Confidence Intervals (if performed)
+6. The number of patients in the association (total number in association, both cases and controls)
 
 In addition to the above the analyst will need to submit information on:
 
 1. The name of the analyst who performed the association
 2. The year the analysis was run
 3. The sample of patients the association was performed on (e.g. Disease Sub-Type (CD or UC), Race, Ethnicity, Jewish, other unique criteria of your analysis)
-4. The number of patients in the association (total number in association, both cases and controls)
-5. The phenotype tested
+4. The phenotype tested
 
 
 ### Annotations
