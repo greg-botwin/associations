@@ -1,5 +1,5 @@
 ## Purpose
-The purpose of this Shiny application is to interactively and quickly review previously found associations identified by the Cedars-Sinai F. Widjaja Foundation Inflammatory Bowel and Immunobiology Research Institute.
+The purpose of this Shiny application is to interactively and quickly review previously found genetic Inflammatory Bowel Disease associations identified by the Cedars-Sinai F. Widjaja Foundation Inflammatory Bowel and Immunobiology Research Institute.
 
 ## Functionality
 ### Search
