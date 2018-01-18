@@ -10,7 +10,6 @@ Users can search by multiple Genes or SNPs at a time by selecting multiple Genes
 ### Filtering
 Users can filter their query to only include SNP associations that reach user defined thresholds. Users can filter by:
 
-=======
 Users can filter their query to only include SNP associations that reach user defined thresholds. Users can filter by: 
 
 1. P Value
