@@ -56,7 +56,7 @@ ui <- fluidPage(
                   step = 1),
       radioButtons(inputId = "searchby",
                    label = "Search By",
-                   choices = c("Gene" ="gene", "Location" = "location",
+                   choices = c("Gene" ="gene", "Position" = "position",
                                                          "SNP" = "snp"),
                    selected = "gene"),
       conditionalPanel(
@@ -72,7 +72,7 @@ ui <- fluidPage(
                                                               }")))
         ),
       conditionalPanel(
-        condition = "input.searchby == 'location'",
+        condition = "input.searchby == 'position'",
         selectInput(inputId = "chromosome_choice",
                     label = "Chromosome",
                     choices = unique_chromsomes$CHR),
@@ -119,7 +119,7 @@ server <- function(input, output, session) {
         filter(gene %in% input$genelist)
         }
         
-    else if(search_choice() == "location") {
+    else if(search_choice() == "position") {
       associations %>%
         filter(P <= 10^-input$p_value) %>%
         filter(snp_location %in% input$snp_location) %>%
