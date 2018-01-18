@@ -13,7 +13,7 @@ Functionality
 
 Users can search associations by **Gene** (e.g. NOD2), **Position** (e.g. Chr. 16, between 50731050-50766987), or by **RS ID** (e.g. rs5743293). Searching by position queries by the position of the SNP not by the position of the Gene.
 
-Users can search by multiple Genes or SNPs at a time by selecting multiple Genes or SNPs respectively. If a user has a large list of Genes or SNPs they can copy and paste them into the search box but the Genes/SNPs must be in comma separated format (e.g. IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,IL10).
+Users can search by multiple Genes or SNPs at a time by selecting multiple Genes or SNPs respectively. If a user has a large list of Genes or SNPs they can copy and paste them into the search box but the Genes/SNPs must be in comma separated format (e.g. IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,IL10,IL11).
 
 ### Filtering
 
