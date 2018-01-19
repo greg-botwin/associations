@@ -35,6 +35,9 @@ Users can filter their query to only include SNP associations that reach user de
 
 Once a table of results is returned, a user can sub-filter the table by the output to further narrow down the results. 
 
+### Download Data
+For users who are interested in downloading their query, a **Download** button can be found at the bottom of every table. The downloaded data will reflect the filters applied from the query, but the "sub-filters" will not be applied. 
+
 ## Data 
 
 ```{r echo = FALSE}
