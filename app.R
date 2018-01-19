@@ -205,7 +205,6 @@ server <- function(input, output, session) {
     }
   }
   )
-    
   
   # table_genes ----------------------------------------------------------------
   output$table_gene<- DT::renderDataTable(associations_filtered() %>%
@@ -312,6 +311,7 @@ server <- function(input, output, session) {
                             snp_location = snp_location), file, row.names = FALSE)
     }
   )
+  
 }
 
 # Run the application 
