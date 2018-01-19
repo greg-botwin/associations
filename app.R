@@ -216,7 +216,7 @@ server <- function(input, output, session) {
                 max_OR = max(OR),
                 min_OR = min(OR)) %>%
       arrange(desc(n_phenos)), filter = "bottom", options = 
-        list(pageLength = 25, lengthMenu = c(25, 50, 100)))
+        list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   
   # table_gene_pheno------------------------------------------------------------
   output$table_gene_pheno<- DT::renderDataTable(associations_filtered() %>%
@@ -227,7 +227,7 @@ server <- function(input, output, session) {
                 max_OR = max(OR),
                 min_OR = min(OR)) %>%
       arrange(desc(n_sig_snps)), filter = "bottom", options = 
-        list(pageLength = 25, lengthMenu = c(25, 50, 100)))
+        list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   
   # table_gene_pheno_snp---------------------------------------------------------
   output$table_gene_pheno_snp <- DT::renderDataTable(
@@ -241,7 +241,7 @@ server <- function(input, output, session) {
                 base_pair = BP,
                 snp_location = snp_location),
     filter = "bottom",
-    options = list(pageLength = 25, lengthMenu = c(25, 50, 100)))
+    options = list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   
   # ui_genes-------------------------------------------------------------------
   updateSelectizeInput(session, 'genelist', choices = unique_genes$gene, server = TRUE)
