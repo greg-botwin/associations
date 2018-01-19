@@ -11,9 +11,11 @@ Functionality
 
 ### Search
 
-Users can search associations by **Gene** (e.g. NOD2), **Position** (e.g. Chr. 16, between 50731050-50766987), or by **RS ID** (e.g. rs5743293). Searching by position queries by the position of the SNP not by the position of the Gene.
+Users can search associations by **Gene** (e.g. NOD2), **Position** (e.g. Chr. 16, between 50731050-50766987), **RS ID** (e.g. rs5743293), or by **File** of either a list of genes or SNPs. Searching by position queries by the position of the SNP not by the position of the Gene.
 
 Users can search by multiple Genes or SNPs at a time by selecting multiple Genes or SNPs respectively. If a user has a large list of Genes or SNPs they can copy and paste them into the search box but the Genes/SNPs must be in comma separated format (e.g. IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,IL10,IL11).
+
+If you are going to upload a list of Genes or SNPs, the file **must** consist of a single column of Genes or RS IDs in .csv format. The column can be named or un-named.
 
 ### Filtering
 

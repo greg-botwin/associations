@@ -38,27 +38,38 @@ ui <- fluidPage(
   titlePanel("Cedars IBD Known Associations"),
   sidebarLayout(
     sidebarPanel(
+      
+      # minor allele frequency search
       sliderInput(inputId = "maf",
                   label = "SNP with Minor Allele Frequency >=",
                   min = 0,
                   max = 0.2,
                   value = 0,
                   step = 0.01),
+      
+      # snp location search
       checkboxGroupInput(inputId = "snp_location",
                          label = "Acceptable SNP Location",
                          choices = c(unique(associations$snp_location)),
                          selected = c(unique(associations$snp_location))),
+      
+      #p value filter
       sliderInput(inputId = "p_value",
                   label = "Associations with P Value <= 10^-",
                   min = 1,
                   max = 15,
                   value = 1,
                   step = 1),
+      
+      # selector for search method
       radioButtons(inputId = "searchby",
                    label = "Search By",
                    choices = c("Gene" ="gene", "Position" = "position",
-                                                         "SNP" = "snp"),
+                              "SNP" = "snp", "Upload Gene File" = "gene_file",
+                              "Upload SNP File" = "snp_file"),
                    selected = "gene"),
+      
+      #conditional selector if search method is gene
       conditionalPanel(
         condition = "input.searchby == 'gene'",
         selectizeInput("genelist", "Enter Genes of Interest", choices = NULL, multiple = TRUE, 
@@ -71,6 +82,8 @@ ui <- fluidPage(
                                                               };
                                                               }")))
         ),
+      
+      #conditional selector if search method is position
       conditionalPanel(
         condition = "input.searchby == 'position'",
         selectInput(inputId = "chromosome_choice",
@@ -79,6 +92,8 @@ ui <- fluidPage(
         numericInput("min_bp", "From BP", 0),
         numericInput("max_bp", "To BP", 0)
         ),
+      
+      #conditional selector if search method is snp
       conditionalPanel(
         condition = "input.searchby == 'snp'",
         selectizeInput("snplist", "Enter SNPs of Interest", choices = NULL, multiple = TRUE, 
@@ -90,6 +105,33 @@ ui <- fluidPage(
                                                               text: input
                                                               };
                                                               }")))
+      ),
+      
+      #conditional selector if search method is file
+      conditionalPanel(
+        condition = "input.searchby == 'gene_file' | input.searchby == 'snp_file'",
+        # Input: Checkbox if file has header ----
+        checkboxInput("header", "Check if your Column is Named", FALSE),
+        
+        # Input: Select separator ----
+        radioButtons("sep", "Separator",
+                     choices = c(Comma = ",",
+                                 Semicolon = ";",
+                                 Tab = "\t"),
+                     selected = ","),
+        
+        # Input: Select quotes ----
+        radioButtons("quote", "Are your Character Strings Quoted?",
+                     choices = c(None = "",
+                                 "Double Quote" = '"',
+                                 "Single Quote" = "'"),
+                     selected = ''),
+        # Input: Select a file ----
+        fileInput("file1", "Choose CSV File",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv"))
       )
     ),
     # Show a table
@@ -139,6 +181,28 @@ server <- function(input, output, session) {
         filter(MAF >= input$maf) %>%
         filter(RSID %in% input$snplist)
     }
+    
+    else if(search_choice() == "gene_file"){
+      
+      genes_from_file <- uploaded_file()
+      
+      associations %>%
+        filter(P <= 10^-input$p_value) %>%
+        filter(snp_location %in% input$snp_location) %>%
+        filter(MAF >= input$maf) %>%
+        filter(gene %in% genes_from_file[,1])
+    }
+    
+    else if(search_choice() == "snp_file"){
+      
+      snps_from_file <- uploaded_file()
+      
+      associations %>%
+        filter(P <= 10^-input$p_value) %>%
+        filter(snp_location %in% input$snp_location) %>%
+        filter(MAF >= input$maf) %>%
+        filter(RSID %in% snps_from_file[,1])
+    }
   }
   )
     
@@ -166,7 +230,6 @@ server <- function(input, output, session) {
         list(pageLength = 25, lengthMenu = c(25, 50, 100)))
   
   # table_gene_pheno_snp---------------------------------------------------------
-  # talk with talin about rs2066844, non unique SNP
   output$table_gene_pheno_snp <- DT::renderDataTable(
     associations_filtered() %>%
       group_by(population, gene, PHENOTYPE, RSID, SNP) %>%
@@ -184,7 +247,18 @@ server <- function(input, output, session) {
   updateSelectizeInput(session, 'genelist', choices = unique_genes$gene, server = TRUE)
   updateSelectizeInput(session, 'snplist', choices = unique_rsids$RSID, server = TRUE)
   
+  # uplaod list of genes or snps
+  uploaded_file <- reactive({
+    inFile <- input$file1
+    if (is.null(inFile))
+      return(NULL)
+    data <- read.csv(inFile$datapath, header = input$header, sep = input$sep, quote = input$quote)
+    data
+  })
+    
+  
   # Downloadable csv of selected dataset ---------------------------------------
+  # download on tab gene
   output$download_table_gene <- downloadHandler(
     filename = function() {
       paste(Sys.Date(), "associations-table-gene", ".csv", sep = "-")
@@ -202,6 +276,7 @@ server <- function(input, output, session) {
     }
   )
   
+  # download on tab gene-pheno
   output$download_table_gene_pheno <- downloadHandler(
     filename = function() {
       paste(Sys.Date(), "associations-table-gene-pheno", ".csv", sep = "-")
@@ -219,6 +294,7 @@ server <- function(input, output, session) {
     }
   )
   
+  # download on tab gene-pheno-snp
   output$download_table_gene_pheno_snp <- downloadHandler(
     filename = function() {
       paste(Sys.Date(), "associations-table-gene-pheno-snp", ".csv", sep = "-")
