@@ -44,8 +44,6 @@ print("hello github")
 ### Guidance for Analysts Submitting Association Data
 The backbone of the application is genetic association tests performed by scientists at the Cedars-Sinai Inflammatory Bowel and Immunobiology Research Institute. To have your association stored in this application the following information is needed in a CSV file per association performed.
 
-The backbone of the application is genetic association tests performed by scientists at the Cedars-Sinai Inflammatory Bowel and Immunobiology Research Institute. To have your association stored in this application the following information is needed in a CSV file per association test. 
-
 1. Illumina Chip ID
 2. RS ID
 3. P Value
