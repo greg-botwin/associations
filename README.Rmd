@@ -49,9 +49,10 @@ The backbone of the application is genetic association tests performed by scient
 
 1. Illumina Chip ID
 2. P Value
-4. Odds Ratio or B Value 
-5. Confidence Intervals (if performed)
-6. The number of patients in the association (total number in association, both cases and controls)
+3. Odds Ratio or B Value 
+4. Confidence Intervals (if performed)
+5. The number of patients in the association (total number in association, both cases and controls)
+6. A1??
 
 In addition to the above the analyst will need to submit information on:
 
