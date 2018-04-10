@@ -1,19 +1,367 @@
 library(tidyverse)
 
 ## alka sub-clincial pheotypes
-df_alka <- read_delim("data/alka_sort_master_comb_annovar_annotate.txt", delim = " ") %>%
+df_alka <- read_delim("data/alka_sort_master_comb_annovar_annotate.txt", delim = " ") 
+df_alka <- df_alka %>%
   mutate(Population = if_else(CD_pheno == "CD_pheno", "Crohn's Disease",
                               if_else(CD_pheno == "UC_pheno", "Ulcerative Colitis", "wilson"))) %>%
   select(Population, PHENOTYPE, SNP, P, OR, NMISS, A1) %>%
+  rename(OR_Z_B = OR) %>%
   mutate(Analyst = "Alka") %>%
   mutate(Year = "2016 - 2017") %>%
   mutate(Notes = "75% Caucasian independent samples, phenotypes from Sultan's File, ichip 1-5") %>%
   filter(P <= 0.05)
 
 ## dalin 
-df_dalin_meta_ibd <- read_tsv("data/dalin_meta_res_with_columns_IBD.txt")
-df_dalin_meta_cd <- read_tsv("data/dalin_meta_res_with_columns_CD.txt")
-df <- read_tsv("data/dalin_meta_results_IBD.txt")
+df_dalin_meta_ibd <- read_tsv("data/dalin/meta/dalin_meta_results_IBD.txt")
+df_dalin_meta_ibd <- df_dalin_meta_ibd %>%
+  filter(P_meta_fixed_all <= 0.05) %>%
+  mutate(NMISS = NMISS_cedars + NMISS_iibdgc + 59957) %>% # 59957 from de lange ng 3760 s2
+  select(SNP, P_meta_fixed_all, beta_meta_fixed_all, NMISS, A1_cedars) %>%
+  rename(P = P_meta_fixed_all, OR_Z_B = beta_meta_fixed_all, A1 = A1_cedars) %>%
+  mutate(Population = "IBD") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2018") %>%
+  mutate(Notes = "Meta of Cedars, IIBDGC, De Lange paper cohorts") %>%
+  mutate(Phenotype = "IBD vs. Ctrl")
 
+
+df_dalin_meta_cd <- read_tsv("data/dalin/meta/dalin_meta_results_CD.txt")
+df_dalin_meta_cd <- df_dalin_meta_cd %>%
+  filter(P_meta_fixed_all <= 0.05) %>%
+  mutate(NMISS = NMISS_cedars + NMISS_iibdgc + 40266) %>% # 40266 from de lange ng 3760 s2
+  select(SNP, P_meta_fixed_all, beta_meta_fixed_all, NMISS, A1_cedars) %>%
+  rename(P = P_meta_fixed_all, OR_Z_B = beta_meta_fixed_all, A1 = A1_cedars) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2018") %>%
+  mutate(Notes = "Meta of Cedars, IIBDGC, De Lange paper cohorts") %>%
+  mutate(Phenotype = "CD vs. Ctrl")
+
+df_dalin_meta_uc <- read_tsv("data/dalin/meta/dalin_meta_results_UC.txt")
+df_dalin_meta_uc <- df_dalin_meta_uc %>%
+  filter(P_meta_fixed_all <= 0.05) %>%
+  mutate(NMISS = NMISS_cedars + NMISS_iibdgc + 45975) %>% # 45975 from de lange ng 3760 s2
+  select(SNP, P_meta_fixed_all, beta_meta_fixed_all, NMISS, A1_cedars) %>%
+  rename(P = P_meta_fixed_all, OR_Z_B = beta_meta_fixed_all, A1 = A1_cedars) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2018") %>%
+  mutate(Notes = "Meta of Cedars, IIBDGC, De Lange paper cohorts") %>%
+  mutate(Phenotype = "UC vs. Ctrl")
+
+df_anca_cd <- read_tsv("data/dalin/serology/anca_cd.txt")
+df_anca_cd <- df_anca_cd %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "Anca CD vs. Anca Ctrl")
+
+df_asca_cd <- read_tsv("data/dalin/serology/asca_cd.txt")
+df_asca_cd <- df_asca_cd %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "Asca CD vs. Asca Ctrl")
+
+df_cbir_cd <- read_tsv("data/dalin/serology/cbir_cd.txt")
+df_cbir_cd <- df_cbir_cd %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "Cbir CD vs. Cbir Ctrl")
+
+df_i2_cd <- read_tsv("data/dalin/serology/i2_cd.txt")
+df_i2_cd <- df_i2_cd %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "i2 CD vs. i2 Ctrl")
+
+df_iga.asca_cd <- read_tsv("data/dalin/serology/iga.asca_cd.txt")
+df_iga.asca_cd <- df_iga.asca_cd %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "IGA Asca CD vs. IGA Asca Ctrl")
+
+df_igg.asca_cd <- read_tsv("data/dalin/serology/igg.asca_cd.txt")
+df_igg.asca_cd <- df_igg.asca_cd %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "IGG Asca CD vs. IGA Asca Ctrl")
+
+df_ompc_cd <- read_tsv("data/dalin/serology/ompc_cd.txt")
+df_ompc_cd <- df_ompc_cd %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "OMPC CD vs. OMPC Ctrl")
+
+df_anca_uc <- read_tsv("data/dalin/serology/anca_uc.txt")
+df_anca_uc <- df_anca_uc %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "Anca UC vs. Anca Ctrl")
+
+df_asca_uc <- read_tsv("data/dalin/serology/asca_uc.txt")
+df_asca_uc <- df_asca_uc %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "Asca UC vs. Asca Ctrl")
+
+df_cbir_uc <- read_tsv("data/dalin/serology/cbir_uc.txt")
+df_cbir_uc <- df_cbir_uc %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "Cbir UC vs. Cbir Ctrl")
+
+df_i2_uc <- read_tsv("data/dalin/serology/i2_uc.txt")
+df_i2_uc <- df_i2_uc %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "i2 UC vs. i2 Ctrl")
+
+df_iga.asca_uc <- read_tsv("data/dalin/serology/iga.asca_uc.txt")
+df_iga.asca_uc <- df_iga.asca_uc %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "IGA Asca UC vs. IGA Asca Ctrl")
+
+df_igg.asca_uc <- read_tsv("data/dalin/serology/igg.asca_uc.txt")
+df_igg.asca_uc <- df_igg.asca_uc %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "IGG Asca UC vs. IGA Asca Ctrl")
+
+df_ompc_uc <- read_tsv("data/dalin/serology/ompc_uc.txt")
+df_ompc_uc <- df_ompc_uc %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = n.case + n.ctrl) %>%
+  select(-n.case, -n.ctrl) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Ulcerative Colitis") %>%
+  mutate(Analyst = "Dalin") %>%
+  mutate(Year = "2017") %>%
+  mutate(Notes = "iChip") %>%
+  mutate(Phenotype = "OMPC UC vs. OMPC Ctrl")
+
+df_dalin <- bind_rows(df_dalin_meta_cd, df_dalin_meta_ibd, df_dalin_meta_uc, 
+                      df_i2_cd, df_i2_uc, df_igg.asca_uc, df_iga.asca_uc,
+                      df_igg.asca_cd, df_igg.asca_uc, df_ompc_uc, df_anca_uc,
+                      df_ompc_cd, df_asca_cd, df_cbir_cd, df_cbir_uc, df_anca_cd,
+                      df_asca_uc)
+
+## talin
+df_talin_1 <- read_table2("data/talin/aTNF/IBDichip12345TOP_TNF_CD_PNRvSNRDR_2PC.assoc.logistic.txt") #error is okay adding additional column 
+df_talin_1 <- df_talin_1 %>%
+  filter(P <= 0.05) %>%
+  filter(TEST == "ADD") %>%
+  select(SNP, P, OR, NMISS, A1) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-5 CD anti-TNF all races but mostly Caucasian, adjusted for 2PC, smoking, disease location, combination therapy") %>%
+  mutate(PHENOTYPE = "anti-TNF primary non-response vs primary response")
+
+df_talin_2 <- read_table2("data/data/talin/aTNF/IBDichip12345TOP_TNF_CD_coxph_2PCclin_autoR2.txt")
+df_talin_2 <- df_talin_2 %>%
+  select(snp, pvalue_snp, zscore_snp, number_subjects, allele) %>%
+  rename(SNP = snp, P = pvalue_snp, OR_Z_B = zscore_snp, NMISS = number_subjects, A1  = allele) %>%
+  filter(P <= 0.05) %>%
+  select(SNP, P, OR_Z, NMISS, A1) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-5 CD anti-TNF all races but mostly Caucasian, adjusted for 2PC, anca level, family history IBD") %>%
+  mutate(PHENOTYPE = "anti-TNF time to loss of response") 
+
+df_talin_3 <- read_table2("data/data/talin/aTNF/IBDichip12345TOP_TNF_UC_2pc.PNR2_vs_SNRDR1.assoc.logistic.txt")
+df_talin_3 <- df_talin_3 %>%
+  filter(P <= 0.05) %>%
+  filter(TEST == "ADD") %>%
+  select(SNP, P, OR, NMISS, A1) %>%
+  rename(OR_Z_B = P) %>%
+  mutate(Population = "Ulcerative Colitits") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-5 UC anti-TNF all races but mostly Caucasian, adjusted for 2PC") %>%
+  mutate(PHENOTYPE = "anti-TNF primary non-response vs primary response")
+
+df_talin_4 <- read_table2("data/data/talin/aTNF/IBDichip12345TOP_TNF_UC_coxph_2PCclin_autoR2.txt")
+df_talin_4 <- df_talin_4 %>%
+  select(snp, pvalue_snp, zscore_snp, number_subjects, allele) %>%
+  rename(SNP = snp, P = pvalue_snp, OR_Z_B = zscore_snp, NMISS = number_subjects, A1  = allele) %>%
+  filter(P <= 0.05) %>%
+  select(SNP, P, OR_Z_B, NMISS, A1) %>%
+  mutate(Population = "Ulcerative Colitits") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-5 UC anti-TNF all races but mostly Caucasian, adjusted for 2PC, ompc positivity, anca positivity") %>%
+  mutate(PHENOTYPE = "anti-TNF time to loss of response") 
+
+df_talin_5 <- read_table2("data/data/talin/aTNF/IBDichip12345TOP_TNF_IBD_PNRvPR_2PCAgeDx.assoc.logistic.txt")
+df_talin_5 <- df_talin_5 %>%
+  filter(P <= 0.05) %>%
+  filter(TEST == "ADD") %>%
+  select(SNP, P, OR, NMISS, A1) %>%
+  rename(OR_Z_B = P) %>%
+  mutate(Population = "IBD") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-5 all IBD anti-TNF all races but mostly Caucasian, adjusted for 2PC, age dx") %>%
+  mutate(PHENOTYPE = "anti-TNF primary non-response vs primary response")
+
+df_talin_6 <- read_table2("data/data/talin/aTNF/IBDichip12345TOP_TNF_IBD_coxph_2PCFamHx.autoR.txt")
+df_talin_6 <- df_talin_6 %>%
+  select(snp, pvalue_snp, zscore_snp, number_subjects, allele) %>%
+  rename(SNP = snp, P = pvalue_snp, OR_Z_B = zscore_snp, NMISS = number_subjects, A1  = allele) %>%
+  filter(P <= 0.05) %>%
+  select(SNP, P, OR_Z_B, NMISS, A1) %>%
+  mutate(Population = "IBD") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-5 all IBD anti-TNF all races but mostly Caucasian, adjusted for 2PC, fam dx") %>%
+  mutate(PHENOTYPE = "anti-TNF time to loss of response") 
+
+df_talin_7 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_linearD0.assoc.linear.txt")
+df_talin_7 <- df_talin_7 %>%
+  filter(P <= 0.05) %>%
+  filter(TEST == "ADD") %>%
+  select(SNP, P, BETA, NMISS, A1) %>%
+  rename(OR_Z_B = BETA) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-6 + Stappenbeck samples, Caucasian only, adjusted for 2PC; with corresponding permuted results for selected top snps [permuted due to highly skewed phenotype; need EMP1 pvalues from permuted") %>%
+  mutate(PHENOTYPE = "Paneth-D0 phenotype")
+
+df1 <- read_table2("data/talin/Paneth/IBDichip123456aThadTIOP_panethCauc_D0_1M.assoc.linear.mperm.txt")
+df10 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_D0_10M.assoc.linear.mperm.txt")
+df100 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_D0_100M.assoc.linear.mperm.txt")
+permuts <- bind_rows(df1, df10, df100)
+
+df_talin_7 <- left_join(df_talin_7, permuts, by = c("SNP" = "SNP"))
+df_talin_7 <- df_talin_7 %>%
+  mutate(orig_P = ifelse(!is.na(EMP1), P, NA)) %>%
+  mutate(P = if_else(!is.na(EMP1), EMP1, P)) %>%
+  select(-CHR, -EMP1, -EMP2, -X5) 
+
+df_talin_8 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_linear.D1.assoc.linear.txt")
+df_talin_8 <- df_talin_8 %>%
+  filter(P <= 0.05) %>%
+  filter(TEST == "ADD") %>%
+  select(SNP, P, BETA, NMISS, A1) %>%
+  rename(OR_Z_B = BETA) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-6 + Stappenbeck samples, Caucasian only, adjusted for 2PC; with corresponding permuted results for selected top snps [permuted due to highly skewed phenotype; need EMP1 pvalues from permuted") %>%
+  mutate(PHENOTYPE = "Paneth-D1 phenotype")
+
+df1 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_D1_10M.assoc.linear.mperm.txt")
+df100 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_D1_100M.assoc.linear.mperm.txt")
+permuts <- bind_rows(df1, df100)
+
+df_talin_8 <- left_join(df_talin_8, permuts, by = c("SNP" = "SNP"))
+df_talin_8 <- df_talin_8 %>%
+  mutate(orig_P = ifelse(!is.na(EMP1), P, NA)) %>%
+  mutate(P = if_else(!is.na(EMP1), EMP1, P)) %>%
+  select(-CHR, -EMP1, -EMP2, -X5) 
+
+df_talin_8 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_linear.D1.assoc.linear.txt")
+df_talin_8 <- df_talin_8 %>%
+  filter(P <= 0.05) %>%
+  filter(TEST == "ADD") %>%
+  select(SNP, P, BETA, NMISS, A1) %>%
+  rename(OR_Z_B = BETA) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Talin") %>%
+  mutate(Year = "2015 - 2016") %>%
+  mutate(Notes = "Cedars ichip1-6 + Stappenbeck samples, Caucasian only, adjusted for 2PC; with corresponding permuted results for selected top snps [permuted due to highly skewed phenotype; need EMP1 pvalues from permuted") %>%
+  mutate(PHENOTYPE = "Paneth-D1 phenotype")
+
+df1 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_D1_10M.assoc.linear.mperm.txt")
+df100 <- read_table2("data/talin/Paneth/IBDichip123456aThadTOP_panethCauc_D1_100M.assoc.linear.mperm.txt")
+permuts <- bind_rows(df1, df100)
+
+df_talin_8 <- left_join(df_talin_8, permuts, by = c("SNP" = "SNP"))
+df_talin_8 <- df_talin_8 %>%
+  mutate(orig_P = ifelse(!is.na(EMP1), P, NA)) %>%
+  mutate(P = if_else(!is.na(EMP1), EMP1, P)) %>%
+  select(-CHR, -EMP1, -EMP2, -X5) 
 
 
