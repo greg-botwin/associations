@@ -1,4 +1,5 @@
 library(tidyverse)
+library(readxl)
 
 ## alka sub-clincial pheotypes
 df_alka <- read_delim("data/alka_sort_master_comb_annovar_annotate.txt", delim = " ") 
@@ -253,7 +254,7 @@ df_talin_3 <- df_talin_3 %>%
   filter(P <= 0.05) %>%
   filter(TEST == "ADD") %>%
   select(SNP, P, OR, NMISS, A1) %>%
-  rename(OR_Z_B = P) %>%
+  rename(OR_Z_B = OR) %>%
   mutate(Population = "Ulcerative Colitits") %>%
   mutate(Analyst = "Talin") %>%
   mutate(Year = "2015 - 2016") %>%
@@ -471,6 +472,7 @@ df_talin_15 <- df_talin_15 %>%
   rename(SNP = MarkerName, P = `P-value`, OR_Z_B = Effect, A1 = Allele1) %>%
   select(SNP, P, OR_Z_B, A1) %>%
   filter(P <= 0.05) %>%
+  mutate(NMISS = 10060 + 962) %>%
   mutate(Population = "Ulcerative Colitis") %>%
   mutate(Analyst = "Talin") %>%
   mutate(Year = "2015 - 2016") %>%
@@ -482,6 +484,7 @@ df_talin_16 <- df_talin_16 %>%
   rename(SNP = MarkerName, P = `P-value`, OR_Z_B = Effect, A1 = Allele1) %>%
   select(SNP, P, OR_Z_B, A1) %>%
   filter(P <= 0.05) %>%
+  mutate(NMISS = 10060 + 962) %>%
   mutate(Population = "Ulcerative Colitis") %>%
   mutate(Analyst = "Talin") %>%
   mutate(Year = "2015 - 2016") %>%
@@ -493,6 +496,7 @@ df_talin_17 <- df_talin_17 %>%
   rename(SNP = MarkerName, P = `P-value`, OR_Z_B = Effect, A1 = Allele1) %>%
   select(SNP, P, OR_Z_B, A1) %>%
   filter(P <= 0.05) %>%
+  mutate(NMISS = 947 + 5379) %>%
   mutate(Population = "Ulcerative Colitis") %>%
   mutate(Analyst = "Talin") %>%
   mutate(Year = "2015 - 2016") %>%
@@ -504,6 +508,7 @@ df_talin_18 <- df_talin_18 %>%
   rename(SNP = MarkerName, P = `P-value`, OR_Z_B = Effect, A1 = Allele1) %>%
   select(SNP, P, OR_Z_B, A1) %>%
   filter(P <= 0.05) %>%
+  mutate(NMISS = 947 + 5379) %>%
   mutate(Population = "Ulcerative Colitis") %>%
   mutate(Analyst = "Talin") %>%
   mutate(Year = "2015 - 2016") %>%
@@ -515,6 +520,7 @@ df_talin_19 <- df_talin_19 %>%
   rename(SNP = MarkerName, P = `P-value`, OR_Z_B = Effect, A1 = Allele1) %>%
   select(SNP, P, OR_Z_B, A1) %>%
   filter(P <= 0.05) %>%
+  mutate(NMISS = 596 + 3335) %>%
   mutate(Population = "Ulcerative Colitis") %>%
   mutate(Analyst = "Talin") %>%
   mutate(Year = "2015 - 2016") %>%
@@ -527,6 +533,7 @@ df_talin_20 <- df_talin_20 %>%
   select(SNP, P, OR_Z_B, A1) %>%
   filter(P <= 0.05) %>%
   mutate(Population = "Ulcerative Colitis") %>%
+  mutate(NMISS = 596 + 3335) %>%
   mutate(Analyst = "Talin") %>%
   mutate(Year = "2015 - 2016") %>%
   mutate(Notes = "Meta-analysis of Cedars iChip1-4 and international IIBDGC ichip using SNP2HLA (MHC/HLA) imputed, Caucasian only") %>%
@@ -539,7 +546,7 @@ df_talin <- bind_rows(df_talin_1, df_talin_2, df_talin_3, df_talin_4,
                       df_talin_17, df_talin_18, df_talin_19, df_talin_20)
 
 # ingest shishir
-df_shishir_1 <- read_table("data/shishir/B1vCtrl_L1_MAF.Status.assoc.logistic")
+df_shishir_1 <- read_table2("data/shishir/B1vCtrl_L1_MAF.Status.assoc.logistic")
 df_shishir_1 <- df_shishir_1 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -550,7 +557,7 @@ df_shishir_1 <- df_shishir_1 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L1 B1 vs non-IBD ctrl")
 
-df_shishir_2 <- read_table("data/shishir/B1vCtrl_L2_MAF.Status.assoc.logistic")
+df_shishir_2 <- read_table2("data/shishir/B1vCtrl_L2_MAF.Status.assoc.logistic")
 df_shishir_2 <- df_shishir_2 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -561,7 +568,7 @@ df_shishir_2 <- df_shishir_2 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L2 B1 vs non-IBD ctrl")
 
-df_shishir_3 <- read_table("data/shishir/B1vCtrl_L3_MAF.Status.assoc.logistic")
+df_shishir_3 <- read_table2("data/shishir/B1vCtrl_L3_MAF.Status.assoc.logistic")
 df_shishir_3 <- df_shishir_3 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -572,7 +579,7 @@ df_shishir_3 <- df_shishir_3 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L3 B1 vs non-IBD ctrl")
 
-df_shishir_4 <- read_table("data/shishir/B2a+B2bvB1_L1_MAF.Status.assoc.logistic")
+df_shishir_4 <- read_table2("data/shishir/B2a+B2bvB1_L1_MAF.Status.assoc.logistic")
 df_shishir_4 <- df_shishir_4 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -583,7 +590,7 @@ df_shishir_4 <- df_shishir_4 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L1 B2a+B2b vs non-IBD ctrl")
 
-df_shishir_5 <- read_table("data/shishir/B2a+B2bvB1_L2_MAF.Status.assoc.logistic")
+df_shishir_5 <- read_table2("data/shishir/B2a+B2bvB1_L2_MAF.Status.assoc.logistic")
 df_shishir_5 <- df_shishir_5 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -594,7 +601,7 @@ df_shishir_5 <- df_shishir_5 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L2 B2a+B2b vs non-IBD ctrl")
 
-df_shishir_6 <- read_table("data/shishir/B2a+B2bvB1_L3_MAF.Status.assoc.logistic")
+df_shishir_6 <- read_table2("data/shishir/B2a+B2bvB1_L3_MAF.Status.assoc.logistic")
 df_shishir_6 <- df_shishir_6 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -605,7 +612,7 @@ df_shishir_6 <- df_shishir_6 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L3 B2a+B2b vs non-IBD ctrl")
 
-df_shishir_7 <- read_table("data/shishir/B2a+B2bvCtrl_L1_MAF.Status.assoc.logistic")
+df_shishir_7 <- read_table2("data/shishir/B2a+B2bvCtrl_L1_MAF.Status.assoc.logistic")
 df_shishir_7 <- df_shishir_7 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -616,7 +623,7 @@ df_shishir_7 <- df_shishir_7 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L1 B2a+B2b vs B1")
 
-df_shishir_8 <- read_table("data/shishir/B2a+B2bvCtrl_L2_MAF.Status.assoc.logistic")
+df_shishir_8 <- read_table2("data/shishir/B2a+B2bvCtrl_L2_MAF.Status.assoc.logistic")
 df_shishir_8 <- df_shishir_8 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -627,7 +634,7 @@ df_shishir_8 <- df_shishir_8 %>%
   mutate(Notes = "iChip 1-7, Caucasian") %>%
   mutate(PHENOTYPE = "L2 B2a+B2b vs B1")
 
-df_shishir_9 <- read_table("data/shishir/B2a+B2bvCtrl_L3_MAF.Status.assoc.logistic")
+df_shishir_9 <- read_table2("data/shishir/B2a+B2bvCtrl_L3_MAF.Status.assoc.logistic")
 df_shishir_9 <- df_shishir_9 %>%
   filter(P <= 0.05) %>%
   select(SNP, A1, NMISS, OR, L95, U95, P) %>%
@@ -645,5 +652,78 @@ df_shishir <- bind_rows(df_shishir_1, df_shishir_2, df_shishir_3, df_shishir_4,
 # df all
 df_all <- bind_rows(df_alka, df_dalin, df_talin, df_shishir)
 
+# ensure A1 always capital
+df_all <- df_all %>%
+  mutate(A1 = toupper(A1))
+
+# need to change seq0
+
+# 1354 SNPs without an A1 from Dalin's IBD meta 
+# 7117 SNPS without NMISS from Talin's MRUCs and Dalins metas 
+
+# read in alka's annotation files
+ichip_v1_anno <- read_excel("data/annotate_ichip1_autosomes_noindels_nov2016_avsnp147.xlsx")
+ichip_v1_anno[ichip_v1_anno == '.'] <- NA
+ichip_v2_anno <- read_excel("data/ichipv2_annovar_annotation_hg19_avsnp147_basic_updated.xlsx")
+ichip_v2_anno[ichip_v2_anno == '.'] <- NA
+
+ichip_v1_anno <- ichip_v1_anno %>%
+  select(Illumina_ichip_ID, Chr, Start, Ref, Alt, Func.knownGene, Gene.knownGene, avsnp147)
+
+ichip_v2_anno <- ichip_v2_anno %>%
+  select(Otherinfo_IlluminaName, Chr, Start, Ref, Alt, Func.knownGene, Gene.knownGene, avsnp147) %>%
+  rename(Illumina_ichip_ID = Otherinfo_IlluminaName)
+
+ichip_v1_v2_anno <- bind_rows(ichip_v1_anno, ichip_v2_anno)
+
+ichip_v1_v2_anno <- ichip_v1_v2_anno %>%
+  distinct(Illumina_ichip_ID, .keep_all = TRUE)
+
+# read in snp list from talin without 0 
+snp_list <- read_excel("data/ichip_snps.xlsx")
+
+#find snps in all associations not already matched
+zero_snps <- df_all %>%
+  filter(!SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID) %>%
+  filter(SNP %in% snp_list$`With zero instead of dash`) %>%
+  select(SNP) %>%
+  distinct() 
+
+zero_snps <- left_join(zero_snps, snp_list, by = c("SNP" = 'With zero instead of dash'))
+
+df_all <- left_join(df_all, zero_snps, by = "SNP")
+
+df_all <- df_all %>%
+  mutate(SNP = if_else(!is.na(Original), Original, SNP)) %>%
+  select(-Original)
+
 df_all %>%
-  group_by(Analyst, PHENOTYPE)
+  filter(!SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID) %>%
+  #filter(!SNP %in% ichip_v1_v2_anno$avsnp147) %>%
+  group_by(Analyst) %>%
+  summarise(n = n())
+
+# the remaining 2,245 SNPS primarily come from Talin's HLA analaysis
+# many of these rsids are already in the ichip file but in the avsnp column
+
+df_annotated1 <- df_all %>%
+  filter(SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID)
+df_annotated1 <- left_join(df_annotated1, ichip_v1_v2_anno, by = c("SNP" = "Illumina_ichip_ID"))
+
+df_annotated2 <- df_all %>%
+  filter(!SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID)
+df_annotated2 <- left_join(df_annotated2, ichip_v1_v2_anno, by = c("SNP" = "avsnp147")) 
+df_annotated2 <- df_annotated2 %>%
+  select(-Illumina_ichip_ID) %>%
+  filter(!is.na(Gene.knownGene))
+
+df_annotated3 <- df_all %>%
+  filter(!SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID & !SNP %in% ichip_v1_v2_anno$avsnp147) %>%
+  mutate(Func.knownGene = ifelse(Analyst == "Talin" & str_detect(Notes, "MHC/HLA"), "MHC/HLA", NA)) %>%
+  mutate(Chr = ifelse(Analyst == "Talin" & str_detect(Notes, "MHC/HLA"), 6, NA))
+
+df_all_annotated <- bind_rows(df_annotated1, df_annotated2, df_annotated3)
+
+df_all_annotated %>%
+  write_csv("df_all_annotated.csv")
+

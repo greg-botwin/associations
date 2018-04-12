@@ -64,7 +64,10 @@ In addition to the above the analyst will need to submit information on:
 
 ### Annotations
 Specific information provided by Talin will go here. Plan is to use hg19 genome locations and UCSC gene information.
-Hardy-Weinberg, minor allele frequency, and missingness will be performed globally on all runs. Additional details to follow. 
+Hardy-Weinberg, minor allele frequency, and missingness will be performed globally on all runs. Additional details to follow.
+
+RS numbers provided by avsnp147 database which is a map of dbSNP147 with allelic splitting and left-normalization.
+Func.refGene and Gene.refGene from annovar need downlaod data from alka. 
 
 ## Created By
 The Cedars-Sinai F. Widjaja Foundation Inflammatory Bowel and Immunobiology Research Institute Translational Genomics Group.
