@@ -41,11 +41,11 @@ Data
 The backbone of the application is genetic association tests performed by scientists at the Cedars-Sinai Inflammatory Bowel and Immunobiology Research Institute. To have your association stored in this application the following information is needed in a CSV file per association performed.
 
 1.  Illumina Chip ID
-2.  RS ID
-3.  P Value
-4.  Odds Ratio or B Value
-5.  Confidence Intervals (if performed)
-6.  The number of patients in the association (total number in association, both cases and controls)
+2.  P Value
+3.  Odds Ratio or B Value
+4.  Confidence Intervals (if performed)
+5.  The number of patients in the association (total number in association, both cases and controls)
+6.  A1
 
 In addition to the above the analyst will need to submit information on:
 

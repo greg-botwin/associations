@@ -24,7 +24,8 @@ df_dalin_meta_ibd <- df_dalin_meta_ibd %>%
   mutate(Analyst = "Dalin") %>%
   mutate(Year = "2018") %>%
   mutate(Notes = "Meta of Cedars, IIBDGC, De Lange paper cohorts") %>%
-  mutate(PHENOTYPE = "IBD vs. Ctrl")
+  mutate(PHENOTYPE = "IBD vs. Ctrl") %>%
+  distinct(SNP, .keep_all = TRUE) #metas have ~60 duplicate SNPs removing
 
 
 df_dalin_meta_cd <- read_tsv("data/dalin/meta/dalin_meta_results_CD.txt")
@@ -37,7 +38,8 @@ df_dalin_meta_cd <- df_dalin_meta_cd %>%
   mutate(Analyst = "Dalin") %>%
   mutate(Year = "2018") %>%
   mutate(Notes = "Meta of Cedars, IIBDGC, De Lange paper cohorts") %>%
-  mutate(PHENOTYPE = "CD vs. Ctrl")
+  mutate(PHENOTYPE = "CD vs. Ctrl") %>%
+  distinct(SNP, .keep_all = TRUE) #metas have ~60 duplicate SNPs removing
 
 df_dalin_meta_uc <- read_tsv("data/dalin/meta/dalin_meta_results_UC.txt")
 df_dalin_meta_uc <- df_dalin_meta_uc %>%
@@ -49,7 +51,8 @@ df_dalin_meta_uc <- df_dalin_meta_uc %>%
   mutate(Analyst = "Dalin") %>%
   mutate(Year = "2018") %>%
   mutate(Notes = "Meta of Cedars, IIBDGC, De Lange paper cohorts") %>%
-  mutate(PHENOTYPE = "UC vs. Ctrl")
+  mutate(PHENOTYPE = "UC vs. Ctrl") %>%
+  distinct(SNP, .keep_all = TRUE) #metas have ~60 duplicate SNPs removing
 
 df_anca_cd <- read_tsv("data/dalin/serology/anca_cd.txt")
 df_anca_cd <- df_anca_cd %>%
@@ -61,7 +64,7 @@ df_anca_cd <- df_anca_cd %>%
   mutate(Analyst = "Dalin") %>%
   mutate(Year = "2017") %>%
   mutate(Notes = "iChip") %>%
-  mutate(PHENOTYPE = "Anca CD vs. Anca Ctrl")
+  mutate(PHENOTYPE = "Anca CD vs. Anca Ctrl") 
 
 df_asca_cd <- read_tsv("data/dalin/serology/asca_cd.txt")
 df_asca_cd <- df_asca_cd %>%
@@ -221,8 +224,8 @@ df_ompc_uc <- df_ompc_uc %>%
 
 df_dalin <- bind_rows(df_dalin_meta_cd, df_dalin_meta_ibd, df_dalin_meta_uc, 
                       df_i2_cd, df_i2_uc, df_igg.asca_uc, df_iga.asca_uc,
-                      df_igg.asca_cd, df_igg.asca_uc, df_ompc_uc, df_anca_uc,
-                      df_ompc_cd, df_asca_cd, df_cbir_cd, df_cbir_uc, df_anca_cd,
+                      df_igg.asca_cd, df_ompc_uc, df_anca_uc, df_ompc_cd,
+                      df_asca_cd, df_cbir_cd, df_cbir_uc, df_anca_cd,
                       df_asca_uc)
 
 ## talin
@@ -656,7 +659,6 @@ df_all <- bind_rows(df_alka, df_dalin, df_talin, df_shishir)
 df_all <- df_all %>%
   mutate(A1 = toupper(A1))
 
-# need to change seq0
 
 # 1354 SNPs without an A1 from Dalin's IBD meta 
 # 7117 SNPS without NMISS from Talin's MRUCs and Dalins metas 
@@ -668,10 +670,10 @@ ichip_v2_anno <- read_excel("data/ichipv2_annovar_annotation_hg19_avsnp147_basic
 ichip_v2_anno[ichip_v2_anno == '.'] <- NA
 
 ichip_v1_anno <- ichip_v1_anno %>%
-  select(Illumina_ichip_ID, Chr, Start, Ref, Alt, Func.knownGene, Gene.knownGene, avsnp147)
+  select(Illumina_ichip_ID, Chr, Start, Ref, Alt, Func.knownGene, Gene.knownGene, avsnp147, Gene.refGene)
 
 ichip_v2_anno <- ichip_v2_anno %>%
-  select(Otherinfo_IlluminaName, Chr, Start, Ref, Alt, Func.knownGene, Gene.knownGene, avsnp147) %>%
+  select(Otherinfo_IlluminaName, Chr, Start, Ref, Alt, Func.knownGene, Gene.knownGene, avsnp147, Gene.refGene) %>%
   rename(Illumina_ichip_ID = Otherinfo_IlluminaName)
 
 ichip_v1_v2_anno <- bind_rows(ichip_v1_anno, ichip_v2_anno)
@@ -699,12 +701,11 @@ df_all <- df_all %>%
 
 df_all %>%
   filter(!SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID) %>%
-  #filter(!SNP %in% ichip_v1_v2_anno$avsnp147) %>%
+  filter(!SNP %in% ichip_v1_v2_anno$avsnp147) %>%
   group_by(Analyst) %>%
   summarise(n = n())
 
 # the remaining 2,245 SNPS primarily come from Talin's HLA analaysis
-# many of these rsids are already in the ichip file but in the avsnp column
 
 df_annotated1 <- df_all %>%
   filter(SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID)
@@ -725,5 +726,6 @@ df_annotated3 <- df_all %>%
 df_all_annotated <- bind_rows(df_annotated1, df_annotated2, df_annotated3)
 
 df_all_annotated %>%
+  filter(P != 0) %>% # 40  makres from Dalin have P = 0 need to fix removing for now
   write_csv("df_all_annotated.csv")
 

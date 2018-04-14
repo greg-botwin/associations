@@ -5,53 +5,34 @@ library(tidyverse)
 
 # read in sheet 1 data and make better names
 
-associations <- read_excel("data/IBD1_IBD2_IBD9_IBD10_top ten each category.xlsx", 
-                           sheet = 1)
-colnames(associations) <- make.names(colnames(associations))
-
-# split GENE.LOCATION.CodingStatus
+associations <- read_csv("df_all_annotated.csv")
 associations <- associations %>%
-  separate(GENE.LOCATION.CodingStatus, into = c("gene", "snp_location", "coding_status"),
-           sep = "=") %>%
-  rename(population = CD_pheno) %>%
-  rename()
+  rename(Func = Func.knownGene, Gene = Gene.knownGene) %>%
+  rename(Marker = SNP) %>%
+  rename(dbSNP = avsnp147)
 
 # create unique chromosomes
 unique_chromsomes <- associations %>%
-  select(CHR) %>%
+  select(Chr) %>%
   distinct() %>%
-  arrange(CHR)
+  arrange(Chr)
 
 # create unique genes
-unique_genes <- associations %>%
-  select(gene) %>%
-  distinct(gene) 
 
-# create unique rsids
-unique_rsids <- associations %>%
-  select(RSID) %>%
-  distinct()
+genes <- associations$Gene
+refgenes <- associations$Gene.refGene
+unique_genes <- unique(c(genes, refgenes))
 
+# create unique illumina_ids
+illumina_id <- associations$Marker
+dbSNP <- associations$dbSNP
+unique_markers <- unique(c(illumina_id, dbSNP))
 
 # Define UI for application 
 ui <- fluidPage(
   titlePanel("Cedars IBD Known Associations"),
   sidebarLayout(
     sidebarPanel(
-      
-      # minor allele frequency search
-      sliderInput(inputId = "maf",
-                  label = "SNP with Minor Allele Frequency >=",
-                  min = 0,
-                  max = 0.2,
-                  value = 0,
-                  step = 0.01),
-      
-      # snp location search
-      checkboxGroupInput(inputId = "snp_location",
-                         label = "Acceptable SNP Location",
-                         choices = c(unique(associations$snp_location)),
-                         selected = c(unique(associations$snp_location))),
       
       #p value filter
       sliderInput(inputId = "p_value",
@@ -88,7 +69,7 @@ ui <- fluidPage(
         condition = "input.searchby == 'position'",
         selectInput(inputId = "chromosome_choice",
                     label = "Chromosome",
-                    choices = unique_chromsomes$CHR),
+                    choices = unique_chromsomes$Chr),
         numericInput("min_bp", "From BP", 0),
         numericInput("max_bp", "To BP", 0)
         ),
@@ -132,7 +113,12 @@ ui <- fluidPage(
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv"))
-      )
+      ),
+      # snp location search
+      checkboxGroupInput(inputId = "snp_location",
+                         label = "Acceptable SNP Location",
+                         choices = c(unique(associations$Func)),
+                         selected = c(unique(associations$Func)))
     ),
     # Show a table
     mainPanel(
@@ -161,25 +147,22 @@ server <- function(input, output, session) {
     if(search_choice() == "gene") {
       associations %>%
         filter(P <= 10^-input$p_value) %>%
-        filter(snp_location %in% input$snp_location) %>%
-        filter(MAF >= input$maf) %>%
-        filter(gene %in% input$genelist)
+        filter(Func %in% input$snp_location) %>%
+        filter(Gene %in% input$genelist | Gene.refGene %in% input$genelist)
         }
         
     else if(search_choice() == "position") {
       associations %>%
         filter(P <= 10^-input$p_value) %>%
-        filter(snp_location %in% input$snp_location) %>%
-        filter(MAF >= input$maf) %>%
-        filter(CHR == input$chromosome_choice) %>%
-        filter(between(BP, input$min_bp, input$max_bp))
+        filter(Func %in% input$snp_location) %>%
+        filter(Chr == input$chromosome_choice) %>%
+        filter(between(Start, input$min_bp, input$max_bp))
         }
     else if(search_choice() == "snp"){
       associations %>%
         filter(P <= 10^-input$p_value) %>%
-        filter(snp_location %in% input$snp_location) %>%
-        filter(MAF >= input$maf) %>%
-        filter(RSID %in% input$snplist)
+        filter(Func %in% input$snp_location) %>%
+        filter(Marker %in% input$snplist | dbSNP %in% input$snplist)
     }
     
     else if(search_choice() == "gene_file"){
@@ -188,9 +171,8 @@ server <- function(input, output, session) {
       
       associations %>%
         filter(P <= 10^-input$p_value) %>%
-        filter(snp_location %in% input$snp_location) %>%
-        filter(MAF >= input$maf) %>%
-        filter(gene %in% genes_from_file[,1])
+        filter(Func %in% input$snp_location) %>%
+        filter(Gene %in% genes_from_file[,1] | Gene.refGene %in% genes_from_file[,1])
     }
     
     else if(search_choice() == "snp_file"){
@@ -199,52 +181,52 @@ server <- function(input, output, session) {
       
       associations %>%
         filter(P <= 10^-input$p_value) %>%
-        filter(snp_location %in% input$snp_location) %>%
-        filter(MAF >= input$maf) %>%
-        filter(RSID %in% snps_from_file[,1])
+        filter(Func %in% input$snp_location) %>%
+        filter(Marker %in% snps_from_file[,1] | dbSNP %in% snps_from_file[,1])
     }
   }
   )
   
   # table_genes ----------------------------------------------------------------
   output$table_gene<- DT::renderDataTable(associations_filtered() %>%
-      group_by(population, gene) %>%
+      group_by(Population, Gene, Gene.refGene) %>%
       summarise(n_phenos = length(unique(PHENOTYPE)),
                 phenos = paste(unique(PHENOTYPE), collapse = ", "),
                 min_p = min(P),
-                max_OR = max(OR),
-                min_OR = min(OR)) %>%
+                max_OR_Z_B = max(OR_Z_B),
+                max_OR_Z_B = min(max_OR_Z_B)) %>%
       arrange(desc(n_phenos)), filter = "bottom", options = 
         list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   
   # table_gene_pheno------------------------------------------------------------
   output$table_gene_pheno<- DT::renderDataTable(associations_filtered() %>%
-      group_by(population, gene, PHENOTYPE) %>%
-      summarise(n_sig_snps = length(unique(RSID)),
-                SNPs = paste(unique(RSID), collapse = ", "),
+      group_by(Population, Gene, Gene.refGene, PHENOTYPE, Analyst, Year) %>%
+      summarise(n_sig_snps = length(unique(Marker)),
+                Markers = paste(unique(Marker), collapse = ", "),
+                dbSNPs = paste(unique(dbSNP), collapse = ", "),
                 min_p = min(P),
-                max_OR = max(OR),
-                min_OR = min(OR)) %>%
+                max_OR_Z_B = max(OR_Z_B),
+                min_OR_Z_B = min(OR_Z_B)) %>%
       arrange(desc(n_sig_snps)), filter = "bottom", options = 
         list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   
   # table_gene_pheno_snp---------------------------------------------------------
   output$table_gene_pheno_snp <- DT::renderDataTable(
     associations_filtered() %>%
-      group_by(population, gene, PHENOTYPE, RSID, SNP) %>%
+      group_by(Population, Gene, Gene.refGene, PHENOTYPE, Analyst, Year, Marker, dbSNP) %>%
       summarise(p_value = P,
-                chromosome = CHR,
-                a1 = A1,
+                Chromosome = Chr,
+                A1 = A1,
                 n_miss = NMISS,
-                odds_ratio = OR,
-                base_pair = BP,
-                snp_location = snp_location),
+                OR_Z_B = OR_Z_B,
+                base_pair = Start,
+                snp_location = Func),
     filter = "bottom",
     options = list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   
   # ui_genes-------------------------------------------------------------------
-  updateSelectizeInput(session, 'genelist', choices = unique_genes$gene, server = TRUE)
-  updateSelectizeInput(session, 'snplist', choices = unique_rsids$RSID, server = TRUE)
+  updateSelectizeInput(session, 'genelist', choices = unique_genes, server = TRUE)
+  updateSelectizeInput(session, 'snplist', choices = unique_markers, server = TRUE)
   
   # uplaod list of genes or snps
   uploaded_file <- reactive({
@@ -265,12 +247,12 @@ server <- function(input, output, session) {
     content = function(file) {
       
       write.csv(associations_filtered() %>%
-                  group_by(population, gene) %>%
+                  group_by(Population, Gene, Gene.refGene) %>%
                   summarise(n_phenos = length(unique(PHENOTYPE)),
                             phenos = paste(unique(PHENOTYPE), collapse = ", "),
                             min_p = min(P),
-                            max_OR = max(OR),
-                            min_OR = min(OR)) %>%
+                            max_OR_Z_B = max(OR_Z_B),
+                            max_OR_Z_B = min(max_OR_Z_B)) %>%
                   arrange(desc(n_phenos)), file, row.names = FALSE)
     }
   )
@@ -283,13 +265,13 @@ server <- function(input, output, session) {
     content = function(file) {
       
       write.csv(associations_filtered() %>%
-                  group_by(population, gene, PHENOTYPE) %>%
-                  summarise(n_sig_snps = length(unique(RSID)),
-                            SNPs = paste(unique(RSID), collapse = ", "),
+                  group_by(Population, Gene, Gene.refGene) %>%
+                  summarise(n_phenos = length(unique(PHENOTYPE)),
+                            phenos = paste(unique(PHENOTYPE), collapse = ", "),
                             min_p = min(P),
-                            max_OR = max(OR),
-                            min_OR = min(OR)) %>%
-                  arrange(desc(n_sig_snps)), file, row.names = FALSE)
+                            max_OR_Z_B = max(OR_Z_B),
+                            max_OR_Z_B = min(max_OR_Z_B)) %>%
+                  arrange(desc(n_phenos)), file, row.names = FALSE)
     }
   )
   
@@ -301,14 +283,14 @@ server <- function(input, output, session) {
     content = function(file) {
       
       write.csv(associations_filtered() %>%
-                  group_by(population, gene, PHENOTYPE, RSID, SNP) %>%
+                  group_by(Population, Gene, Gene.refGene, PHENOTYPE, Analyst, Year, Marker, dbSNP) %>%
                   summarise(p_value = P,
-                            chromosome = CHR,
-                            a1 = A1,
-                            n_miss = NMISS, 
-                            odds_ratio = OR,
-                            basse_pair = BP,
-                            snp_location = snp_location), file, row.names = FALSE)
+                            Chromosome = Chr,
+                            A1 = A1,
+                            n_miss = NMISS,
+                            OR_Z_B = OR_Z_B,
+                            base_pair = Start,
+                            snp_location = Func), file, row.names = FALSE)
     }
   )
   
