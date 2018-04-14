@@ -720,10 +720,23 @@ df_annotated2 <- df_annotated2 %>%
 
 df_annotated3 <- df_all %>%
   filter(!SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID & !SNP %in% ichip_v1_v2_anno$avsnp147) %>%
-  mutate(Func.knownGene = ifelse(Analyst == "Talin" & str_detect(Notes, "MHC/HLA"), "MHC/HLA", NA)) %>%
+  mutate(Gene.knownGene = ifelse(Analyst == "Talin" & str_detect(Notes, "MHC/HLA"), "MHC/HLA", NA)) %>%
+  mutate(Gene.refGene = ifelse(Analyst == "Talin" & str_detect(Notes, "MHC/HLA"), "MHC/HLA", NA)) %>%
+  mutate(Func.knownGene = ifelse(Analyst == "Talin" & str_detect(Notes, "MHC/HLA"), "MHC/HLA Perm", NA)) %>%
   mutate(Chr = ifelse(Analyst == "Talin" & str_detect(Notes, "MHC/HLA"), 6, NA))
 
 df_all_annotated <- bind_rows(df_annotated1, df_annotated2, df_annotated3)
+
+# the filter criteria needs to be compelte for all markers otherwise even searching the exact SNP 
+# will not return the desired result. e.g. if rsxyz does not have a Func location it will not be visible
+# replace unknown Func with "UNK"
+# replace unknown Chr with 999
+# replace unknown start with 0
+
+df_all_annotated <- df_all_annotated %>%
+  mutate(Func.knownGene = if_else(is.na(Func.knownGene), "UNK", Func.knownGene)) %>%
+  mutate(Chr = if_else(is.na(Chr), 999, Chr)) %>%
+  mutate(Start = if_else(is.na(Start), 0, Start))
 
 df_all_annotated %>%
   filter(P != 0) %>% # 40  makres from Dalin have P = 0 need to fix removing for now

@@ -5,7 +5,29 @@ library(tidyverse)
 
 # read in sheet 1 data and make better names
 
-associations <- read_csv("df_all_annotated.csv")
+associations <- read_csv("df_all_annotated.csv", col_names = TRUE,
+                         col_types = cols(Population = col_character(),
+                                         PHENOTYPE = col_character(), 
+                                         SNP = col_character(), 
+                                         P = col_double(),
+                                         OR_Z_B = col_double(),
+                                         NMISS = col_double(),
+                                         A1 = col_character(),
+                                         Analyst = col_character(), 
+                                         Year = col_character(),
+                                         Notes = col_character(),
+                                         L95 = col_double(),
+                                         U95 = col_double(),
+                                         orig_P = col_double(),
+                                         Chr = col_integer(),
+                                         Start = col_double(),
+                                         Ref = col_character(),
+                                         Alt = col_character(),
+                                         Func.knownGene = col_character(),
+                                         Gene.knownGene = col_character(),
+                                         avsnp147 = col_character(),
+                                         Gene.refGene = col_character()))
+
 associations <- associations %>%
   rename(Func = Func.knownGene, Gene = Gene.knownGene) %>%
   rename(Marker = SNP) %>%
@@ -194,7 +216,7 @@ server <- function(input, output, session) {
                 phenos = paste(unique(PHENOTYPE), collapse = ", "),
                 min_p = min(P),
                 max_OR_Z_B = max(OR_Z_B),
-                max_OR_Z_B = min(max_OR_Z_B)) %>%
+                min_OR_Z_B = min(OR_Z_B)) %>%
       arrange(desc(n_phenos)), filter = "bottom", options = 
         list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   
@@ -215,6 +237,7 @@ server <- function(input, output, session) {
     associations_filtered() %>%
       group_by(Population, Gene, Gene.refGene, PHENOTYPE, Analyst, Year, Marker, dbSNP) %>%
       summarise(p_value = P,
+                orig_p_perm = orig_P,
                 Chromosome = Chr,
                 A1 = A1,
                 n_miss = NMISS,
@@ -252,7 +275,7 @@ server <- function(input, output, session) {
                             phenos = paste(unique(PHENOTYPE), collapse = ", "),
                             min_p = min(P),
                             max_OR_Z_B = max(OR_Z_B),
-                            max_OR_Z_B = min(max_OR_Z_B)) %>%
+                            min_OR_Z_B = min(OR_Z_B)) %>%
                   arrange(desc(n_phenos)), file, row.names = FALSE)
     }
   )
@@ -270,7 +293,7 @@ server <- function(input, output, session) {
                             phenos = paste(unique(PHENOTYPE), collapse = ", "),
                             min_p = min(P),
                             max_OR_Z_B = max(OR_Z_B),
-                            max_OR_Z_B = min(max_OR_Z_B)) %>%
+                            min_OR_Z_B = min(OR_Z_B)) %>%
                   arrange(desc(n_phenos)), file, row.names = FALSE)
     }
   )
