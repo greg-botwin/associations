@@ -1,0 +1,13 @@
+name: associations_ibiri_tgg
+title: associations_ibiri_tgg
+username:
+account: greg-botwin
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 322489
+bundleId: 1318871
+url: https://greg-botwin.shinyapps.io/associations_ibiri_tgg/
+when: 1523748588.20878
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: ingest.R|README.Rmd|annotate|data

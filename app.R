@@ -288,13 +288,14 @@ server <- function(input, output, session) {
     content = function(file) {
       
       write.csv(associations_filtered() %>%
-                  group_by(Population, Gene, Gene.refGene) %>%
-                  summarise(n_phenos = length(unique(PHENOTYPE)),
-                            phenos = paste(unique(PHENOTYPE), collapse = ", "),
-                            min_p = min(P),
-                            max_OR_Z_B = max(OR_Z_B),
-                            min_OR_Z_B = min(OR_Z_B)) %>%
-                  arrange(desc(n_phenos)), file, row.names = FALSE)
+                    group_by(Population, Gene, Gene.refGene, PHENOTYPE, Analyst, Year) %>%
+                    summarise(n_sig_snps = length(unique(Marker)),
+                              Markers = paste(unique(Marker), collapse = ", "),
+                              dbSNPs = paste(unique(dbSNP), collapse = ", "),
+                              min_p = min(P),
+                              max_OR_Z_B = max(OR_Z_B),
+                              min_OR_Z_B = min(OR_Z_B)) %>%
+                    arrange(desc(n_sig_snps)), file, row.names = FALSE)
     }
   )
   
@@ -308,6 +309,7 @@ server <- function(input, output, session) {
       write.csv(associations_filtered() %>%
                   group_by(Population, Gene, Gene.refGene, PHENOTYPE, Analyst, Year, Marker, dbSNP) %>%
                   summarise(p_value = P,
+                            orig_p_perm = orig_P,
                             Chromosome = Chr,
                             A1 = A1,
                             n_miss = NMISS,
