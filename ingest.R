@@ -2,8 +2,8 @@ library(tidyverse)
 library(readxl)
 
 ## alka sub-clincial pheotypes
-df_alka <- read_delim("data/alka_sort_master_comb_annovar_annotate.txt", delim = " ") 
-df_alka <- df_alka %>%
+df_alka1 <- read_delim("data/alka_sort_master_comb_annovar_annotate.txt", delim = " ") 
+df_alka1 <- df_alka1 %>%
   mutate(Population = if_else(CD_pheno == "CD_pheno", "Crohn's Disease",
                               if_else(CD_pheno == "UC_pheno", "Ulcerative Colitis", "wilson"))) %>%
   select(Population, PHENOTYPE, SNP, P, OR, NMISS, A1) %>%
@@ -13,6 +13,32 @@ df_alka <- df_alka %>%
   mutate(Notes = "75% Caucasian independent samples, phenotypes from Sultan's File, ichip 1-5") %>%
   filter(P <= 0.05)
 
+df_alka2 <- read_excel("data/sort_merge_casecontrol__ichip1-5_trace_anotated_forGreg_041618.xlsx")
+df_alka2 <- df_alka2 %>%
+  mutate(P <= 0.05) %>%
+  mutate(Population = if_else(Phenotype == "cd", "Crohn's Disease",
+                              if_else(Phenotype == "uc", "Ulcerative Colitis",
+                                      if_else(Phenotype == "ibd", "IBD", "wilson")))) %>%
+  mutate(PHENOTYPE = paste(Population, "vs. non-IBD Controls", sep = " ")) %>%
+  select(Population, PHENOTYPE, SNP, P, OR, NMISS, A1) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Analyst = "Alka") %>%
+  mutate(Year = "2016 - 2017") %>%
+  mutate(Notes = "Case-control with ichip1-5 and DX 2016 phenotype file from Linda and using 75% Caucasian independent. Covariates including first 4 PCs")
+
+df_alka3 <- read_excel("data/survival_CD_surgery_ichip1-5_allindep_cauc75CD_forGreg_041618.xlsx",
+                       skip = 1)
+df_alka3 %>%
+  filter(`Pvalue(coxph)` <= 0.05) %>%
+  rename(P = `Pvalue(coxph)`, OR_Z_B = HazardRatio, NMISS = N, A1 = MinorAllele) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(PHENOTYPE = "Time to Frist Surgery") %>%
+  select(Population, PHENOTYPE, SNP, P, OR_Z_B, NMISS, A1) %>%
+  mutate(Analyst = "Alka") %>%
+  mutate(Year = "2016 - 2017") %>%
+  mutate(Notes = "Time to first CD surgery associations with ichip1-5 and Sultan’s phenotype file and using 75% Caucasian independent samples. For second surgery, phenotype file from DM. Covariates include first 4 PCs")
+
+df_alka <- bind_rows(df_alka1, df_alka2, df_alka3)
 ## dalin 
 df_dalin_meta_ibd <- read_tsv("data/dalin/meta/dalin_meta_results_IBD.txt")
 df_dalin_meta_ibd <- df_dalin_meta_ibd %>%
