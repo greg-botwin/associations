@@ -28,7 +28,7 @@ df_alka2 <- df_alka2 %>%
 
 df_alka3 <- read_excel("data/survival_CD_surgery_ichip1-5_allindep_cauc75CD_forGreg_041618.xlsx",
                        skip = 1)
-df_alka3 %>%
+df_alka3 <- df_alka3 %>%
   filter(`Pvalue(coxph)` <= 0.05) %>%
   rename(P = `Pvalue(coxph)`, OR_Z_B = HazardRatio, NMISS = N, A1 = MinorAllele) %>%
   mutate(Population = "Crohn's Disease") %>%
@@ -39,6 +39,7 @@ df_alka3 %>%
   mutate(Notes = "Time to first CD surgery associations with ichip1-5 and Sultan’s phenotype file and using 75% Caucasian independent samples. For second surgery, phenotype file from DM. Covariates include first 4 PCs")
 
 df_alka <- bind_rows(df_alka1, df_alka2, df_alka3)
+
 ## dalin 
 df_dalin_meta_ibd <- read_tsv("data/dalin/meta/dalin_meta_results_IBD.txt")
 df_dalin_meta_ibd <- df_dalin_meta_ibd %>%
