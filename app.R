@@ -243,7 +243,11 @@ server <- function(input, output, session) {
                 n_miss = NMISS,
                 OR_Z_B = OR_Z_B,
                 base_pair = Start,
-                snp_location = Func),
+                snp_location = Func,
+                cis_eGENE = cis_eGENE,
+                eqtl_beta = eqtl_beta,
+                eqtl_p = eqtl_p,
+                priority = priority),
     filter = "bottom",
     options = list(pageLength = 15, lengthMenu = c(15, 30, 60)))
   

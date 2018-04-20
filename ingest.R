@@ -754,6 +754,33 @@ df_annotated3 <- df_all %>%
 
 df_all_annotated <- bind_rows(df_annotated1, df_annotated2, df_annotated3)
 
+
+## add sb 139 dataset as an additional annotation
+sb_139_cis <- read_excel("data/cis_eqtl_sb139_eigen_full_annot.xlsx")
+sb_139_cis <- sb_139_cis %>%
+  group_by(Illumina_ID) %>% 
+  summarise(cis_eGENE = paste(cis_eGENE, collapse = ", "),
+            eqtl_beta = paste(beta, collapse = ", "),
+            eqtl_p = paste(`p-value`, collapse = ", "), 
+            priority = paste(`Match_PRIORITY_cis-eqtl`, collapse = ", "))
+
+
+zero_snps_eqtl <- sb_139_cis %>%
+  filter(!Illumina_ID %in% ichip_v1_v2_anno$Illumina_ichip_ID) %>%
+  filter(Illumina_ID %in% snp_list$`With zero instead of dash`) %>%
+  select(Illumina_ID) %>%
+  distinct() 
+
+zero_snps_eqtl <- left_join(zero_snps_eqtl, snp_list, by = c("Illumina_ID" = 'With zero instead of dash'))
+
+sb_139_cis  <- left_join(sb_139_cis , zero_snps_eqtl, by = "Illumina_ID")
+
+sb_139_cis <- sb_139_cis %>%
+  mutate(Illumina_ID = if_else(!is.na(Original), Original, Illumina_ID)) %>%
+  select(-Original)
+
+df_all_annotated <- left_join(df_all_annotated, sb_139_cis, by = c("SNP" = "Illumina_ID"))
+
 # the filter criteria needs to be compelte for all markers otherwise even searching the exact SNP 
 # will not return the desired result. e.g. if rsxyz does not have a Func location it will not be visible
 # replace unknown Func with "UNK"
@@ -765,7 +792,12 @@ df_all_annotated <- df_all_annotated %>%
   mutate(Chr = if_else(is.na(Chr), 999, Chr)) %>%
   mutate(Start = if_else(is.na(Start), 0, Start))
 
+  
 df_all_annotated %>%
   filter(P != 0) %>% # 40  makres from Dalin have P = 0 need to fix removing for now
   write_csv("df_all_annotated.csv")
+
+sb_139_cis %>%
+  filter(!Illumina_ID %in% df_all_annotated$SNP) %>%
+  View()
 

@@ -46,6 +46,8 @@ In total, `r length(unique(associations$PHENOTYPE))` unique phenotypes generated
 
 In cases when permutation was performed, the permuted P value replaces the queryable P value and the original (non-permutted) P value is displayed next to the permutted value on he Gene-Pheno-SNP tab. 
 
+Markers have been annotated with cis-eQTL data from the Cedars-Sinai Small Bowel 139 dataset. If the relevant loci is also a cis-eQTL in the small bowel dataset, the relevant eGENE, betas and p vaues are also listed next to the marker on the Geno-Pheno-SNP tab. Markers are designated as priority if the eQTL is positioned inside the eGENE or is flanked by the eGENE. eQTL corresponding to insertions and deletions are not included in the application. 
+
 ```{r echo = FALSE, warning=FALSE, message=FALSE}
 associations <- read_csv("df_all_annotated.csv")
 associations %>%
