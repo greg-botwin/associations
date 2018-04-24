@@ -319,7 +319,11 @@ server <- function(input, output, session) {
                             n_miss = NMISS,
                             OR_Z_B = OR_Z_B,
                             base_pair = Start,
-                            snp_location = Func), file, row.names = FALSE)
+                            snp_location = Func,
+                            cis_eGENE = cis_eGENE,
+                            eqtl_beta = eqtl_beta,
+                            eqtl_p = eqtl_p,
+                            priority = priority), file, row.names = FALSE)
     }
   )
   

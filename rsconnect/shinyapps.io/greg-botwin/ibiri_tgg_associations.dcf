@@ -5,9 +5,9 @@ account: greg-botwin
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 322502
-bundleId: 1322040
+bundleId: 1330384
 url: https://greg-botwin.shinyapps.io/ibiri_tgg_associations/
-when: 1523910952.76577
+when: 1524265765.55521
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: ingest.R|README.Rmd|annotate|data
+ignoredFiles: genome_wide_mh_plot.pdf|ingest.R|README.Rmd|annotate|data
