@@ -69,7 +69,8 @@ ui <- fluidPage(
                    label = "Search By",
                    choices = c("Gene" ="gene", "Position" = "position",
                               "SNP" = "snp", "Upload Gene File" = "gene_file",
-                              "Upload SNP File" = "snp_file"),
+                              "Upload SNP File" = "snp_file", "Expression Gene" ="egene",
+                              "EQT Loci" = "eqtl"),
                    selected = "gene"),
       
       #conditional selector if search method is gene
@@ -136,6 +137,48 @@ ui <- fluidPage(
                              "text/comma-separated-values,text/plain",
                              ".csv"))
       ),
+      
+      #eGENE
+      conditionalPanel(
+        condition = "input.searchby == 'egene'",
+        # eGENE cis and or trans or both
+        checkboxGroupInput(inputId = "cis_trans",
+                           label = "Search Cis and/or Trans eQTLS",
+                           choices = c("Cis", "Trans"),
+                           selected = c("Cis", "Trans")),
+        
+        selectizeInput("genelist", "Enter EGenes of Interest", choices = NULL, multiple = TRUE, 
+                       options = list(placeholder = 'enter gene names',
+                                      splitOn = I("(function() { return /[,;]/; })()"),
+                                      create = I("function(input, callback) {
+                                                 return { 
+                                                 value: input,
+                                                 text: input
+                                                 };
+                                                 }")))
+        ),
+      
+      # eqtl
+      conditionalPanel(
+        condition = "input.searchby == 'eqtl'",
+        
+        # eGENE cis and or trans or both
+        checkboxGroupInput(inputId = "cis_trans",
+                           label = "Search Cis and/or Trans eQTLS",
+                           choices = c("Cis", "Trans"),
+                           selected = c("Cis", "Trans")),
+        
+        selectizeInput("genelist", "Enter EQTLs of Interest", choices = NULL, multiple = TRUE, 
+                       options = list(placeholder = 'enter gene names',
+                                      splitOn = I("(function() { return /[,;]/; })()"),
+                                      create = I("function(input, callback) {
+                                                 return { 
+                                                 value: input,
+                                                 text: input
+                                                 };
+                                                 }")))
+        ),
+      
       # snp location search
       checkboxGroupInput(inputId = "snp_location",
                          label = "Acceptable SNP Location",
@@ -208,6 +251,16 @@ server <- function(input, output, session) {
     }
   }
   )
+  
+  eqtl_filter <- reactive({
+    if(search_choice() == "egene") {
+      associations %>%
+        filter(P <= 10^-input$p_value) %>%
+        filter(Func %in% input$snp_location) %>%
+        filter(Gene %in% input$genelist | Gene.refGene %in% input$genelist)
+    }
+  }
+) 
   
   # table_genes ----------------------------------------------------------------
   output$table_gene<- DT::renderDataTable(associations_filtered() %>%

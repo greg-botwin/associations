@@ -38,7 +38,20 @@ df_alka3 <- df_alka3 %>%
   mutate(Year = "2016 - 2017") %>%
   mutate(Notes = "Time to first CD surgery associations with ichip1-5 and Sultan’s phenotype file and using 75% Caucasian independent samples. For second surgery, phenotype file from DM. Covariates include first 4 PCs")
 
-df_alka <- bind_rows(df_alka1, df_alka2, df_alka3)
+df_alka4 <- read_excel("data/survival_CD_surgery_ichip1-5_allindep_cauc75CD_forGreg_041618.xlsx",
+                       skip = 1, sheet = 2)
+
+df_alka4 <- df_alka4 %>%
+  filter(`p-value(coxph)` <= 0.05) %>%
+  rename(P = `p-value(coxph)`, OR_Z_B = HazardRatio, NMISS = N, A1 = MinorAllele) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(PHENOTYPE = "Time to Second Surgery") %>%
+  select(Population, PHENOTYPE, SNP, P, OR_Z_B, NMISS, A1) %>%
+  mutate(Analyst = "Alka") %>%
+  mutate(Year = "2016 - 2017") %>%
+  mutate(Notes = "Time to Second CD surgery associations with ichip1-5 and Sultan’s phenotype file and using 75% Caucasian independent samples. For second surgery, phenotype file from DM. Covariates include first 4 PCs")
+
+df_alka <- bind_rows(df_alka1, df_alka2, df_alka3, df_alka4)
 
 ## dalin 
 df_dalin_meta_ibd <- read_tsv("data/dalin/meta/dalin_meta_results_IBD.txt")
@@ -679,8 +692,22 @@ df_shishir <- bind_rows(df_shishir_1, df_shishir_2, df_shishir_3, df_shishir_4,
                         df_shishir_5, df_shishir_6, df_shishir_7, df_shishir_8,
                         df_shishir_9)
 
+# marcy associations
+df_marcy_1 <- read_xlsx("data/marcy/International_pCD+ver.pCD-.xlsx")
+df_marcy_1 <- df_marcy_1 %>%
+  filter(P <= 0.05) %>%
+  mutate(NMISS = 2974 + 7764) %>%
+  select(SNP, A1, NMISS, OR, P) %>%
+  rename(OR_Z_B = OR) %>%
+  mutate(Population = "Crohn's Disease") %>%
+  mutate(Analyst = "Marcy") %>%
+  mutate(Year = "2018") %>%
+  mutate(Notes = "International Cohort") %>%
+  mutate(PHENOTYPE = "Perianal CD+ vs.  Perianal CD- ")
+
+
 # df all
-df_all <- bind_rows(df_alka, df_dalin, df_talin, df_shishir)
+df_all <- bind_rows(df_alka, df_dalin, df_talin, df_shishir, df_marcy_1)
 
 # ensure A1 always capital
 df_all <- df_all %>%
@@ -732,7 +759,7 @@ df_all %>%
   group_by(Analyst) %>%
   summarise(n = n())
 
-# the remaining 2,245 SNPS primarily come from Talin's HLA analaysis
+# the remaining SNPS primarily come from Talin's HLA analaysis
 
 df_annotated1 <- df_all %>%
   filter(SNP %in% ichip_v1_v2_anno$Illumina_ichip_ID)
